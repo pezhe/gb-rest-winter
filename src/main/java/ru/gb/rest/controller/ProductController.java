@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.gb.rest.dto.ProductDto;
+import ru.gb.rest.dto.ProductManufacturerDto;
 import ru.gb.rest.entity.Product;
 import ru.gb.rest.service.ProductService;
 
@@ -25,16 +26,16 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<Product> getProductList() {
+    public List<ProductDto> getProductList() {
         return productService.findAll();
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<? extends Product> getProduct(@PathVariable("productId") Long id) {
+    public ResponseEntity<? extends ProductDto> getProduct(@PathVariable("productId") Long id) {
         if(id != null) {
-            Product product = productService.findById(id);
-            if (product != null) {
-                return new ResponseEntity<>(product, HttpStatus.OK);
+            ProductDto productDto = productService.findById(id);
+            if (productDto != null) {
+                return new ResponseEntity<>(productDto, HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -42,7 +43,7 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<?> handlePost(@Validated @RequestBody ProductDto productDto) {
-        productDto.setManufacturer(1L);
+        //productDto.setManufacturer(1L);
         ProductDto savedProduct = productService.save(productDto);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(URI.create("api/v1/product/" + savedProduct.getId()));
@@ -53,7 +54,7 @@ public class ProductController {
     public ResponseEntity<?> handleUpdate(@PathVariable("productId") Long id,
                                           @Validated @RequestBody ProductDto productDto) {
         productDto.setId(id);
-        productDto.setManufacturer(1L);
+        //productDto.setManufacturer(1L);
         productService.save(productDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -62,6 +63,11 @@ public class ProductController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void  deleteById(@PathVariable("productId") Long id) {
         productService.deleteById(id);
+    }
+
+    @GetMapping("/info")
+    public List<ProductManufacturerDto> getInfoProductList() {
+        return productService.findAllInfo();
     }
 
 }
